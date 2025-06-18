@@ -27,7 +27,7 @@ jobs:
       run: pyinstaller --onefile main.py
 
     - name: Upload Executable
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: biometric-tool
         path: dist/main.exe
