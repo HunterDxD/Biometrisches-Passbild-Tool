@@ -7,4 +7,5 @@ packaging==25.0
 pyinstaller==6.14.1
 pyinstaller-hooks-contrib==2025.5
 PyQt5
+dlib
 zipp==3.23.0
