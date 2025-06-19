@@ -10,7 +10,7 @@ class BiometricImageProcessor:
     
 
 
-    def __init__(self, target_size=(413, 531), max_file_size=500*1024, 
+    def __init__(self, target_size=(413, 531), max_file_size=500*1024, name_extension="",
                  debug_mode=True, auto_rotate=False, scal_check=True, eye_check=True, mouth_check=False, side_ratio_check=True, head_tilt_check=True,
                  config=None):
         """
@@ -23,6 +23,7 @@ class BiometricImageProcessor:
         """
         self.target_size = target_size
         self.max_file_size = max_file_size
+        self.name_extension = name_extension
         self.debug_mode = debug_mode
         self.auto_rotate = auto_rotate
         self.scal_check = scal_check
@@ -263,7 +264,7 @@ class BiometricImageProcessor:
                 
                     # Dateigröße anpassen und speichern
                     encoded_img = self.adjust_jpeg_quality(processed, self.max_file_size)
-                    output_file = output_path / f"biometric_{img_path.name}"
+                    output_file = output_path / f"{self.name_extension}{img_path.name}"
                     with open(output_file, 'wb') as f:
                         f.write(encoded_img)
                     

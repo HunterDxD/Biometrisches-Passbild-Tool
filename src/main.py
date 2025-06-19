@@ -101,6 +101,15 @@ class BiometricProcessorGUI(QMainWindow):
         settings_group.setLayout(settings_layout)
         layout.addWidget(settings_group)
         
+        # Namenserweiterung
+        name_layout = QHBoxLayout()
+        name_layout.addWidget(QLabel('Namenserweiterung:'))
+        self.name_extension = QLineEdit('biometric_')
+        self.name_extension.setFixedWidth(150)
+        name_layout.addWidget(self.name_extension)
+        name_layout.addStretch()
+        settings_layout.addLayout(name_layout)
+
         # Optionen
         options_group = QGroupBox("Optionen")
         options_layout = QVBoxLayout()
@@ -214,6 +223,7 @@ class BiometricProcessorGUI(QMainWindow):
             target_size=(int(self.width_input.text()), 
                         int(self.height_input.text())),
             max_file_size=int(self.file_size.text()) * 1024,
+            name_extension=self.name_extension.text(),
             debug_mode=self.debug_check.isChecked(),
             auto_rotate=self.rotate_check.isChecked(),
             scal_check=self.scal_check.isChecked(),

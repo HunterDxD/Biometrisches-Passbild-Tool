@@ -21,7 +21,8 @@ DEFAULT_CONFIG = {
         "side_ratio_tolerance": 0.15,
         "max_head_tilt": 8.0,
         "min_eye_ratio": 0.2,
-        "max_mouth_gap": 15
+        "max_mouth_gap": 15,
+        "name_extension": "biometric_"
     },
     "image_quality": {
         "min_jpeg_quality": 30,
