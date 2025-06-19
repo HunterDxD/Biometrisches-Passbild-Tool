@@ -1,4 +1,4 @@
-name: Build and Package App
+name: Build and Package EXE
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -23,11 +23,14 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
-    - name: Build with PyInstaller
-      run: pyinstaller --onefile main.py
+    - name: Build executable
+      run: |
+        pyinstaller --onefile src/main.py `
+          --add-data "src/haarcascade_frontalface_default.xml;src" `
+          --add-data "src/shape_predictor_68_face_landmarks.dat;src"
 
-    - name: Upload Executable
+    - name: Upload executable
       uses: actions/upload-artifact@v4
       with:
-        name: biometric-tool
+        name: biometrisches-passbild-tool
         path: dist/main.exe
