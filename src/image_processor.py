@@ -6,6 +6,12 @@ import os
 
 class BiometricImageProcessor:
 
+    def resource_path(relative_path):
+        """Gibt den Pfad zur Datei, auch wenn eingefroren durch PyInstaller."""
+        base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+        return os.path.join(base_path, relative_path)
+
+
     def __init__(self, target_size=(413, 531), max_file_size=500*1024, 
                  debug_mode=True, auto_rotate=False, scal_check=True, eye_check=True, mouth_check=False, side_ratio_check=True, head_tilt_check=True,
                  config=None):
@@ -36,14 +42,17 @@ class BiometricImageProcessor:
         self.min_eye_hight_factor = self.config.get('biometric_checks', 'min_eye_hight') / 100
         self.max_eye_hight_factor = self.config.get('biometric_checks', 'max_eye_hight') / 100
         self.after_scale_factor = self.config.get('biometric_checks', 'after_scale')
-    
+
+        model_path = self.resource_path("src/shape_predictor_68_face_landmarks.dat")
+        cascade_path = self.resource_path("src/haarcascade_frontalface_default.xml")
+
         # Lade den Gesichtserkennungs-Klassifikator
         self.face_cascade = cv2.CascadeClassifier(
-            cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+            cv2.data.haarcascades + cascade_path
         )
 
         # Dlib für präzisere Gesichtserkennung
-        self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+        self.predictor = dlib.shape_predictor(model_path)
         self.detector = dlib.get_frontal_face_detector()
     
 
