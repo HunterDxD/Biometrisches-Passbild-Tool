@@ -25,10 +25,14 @@ jobs:
 
     - name: Build executable
       run: |
-        pyinstaller --onefile src/main.py `
-          --add-data "src/haarcascade_frontalface_default.xml;src" `
-          --add-data "src/shape_predictor_68_face_landmarks.dat;src" `
-          --collect-submodules PyQt5
+        pyinstaller src/main.py \
+        --name passbildtool \
+        --noconfirm \
+        --clean \
+        --add-data "src/haarcascade_frontalface_default.xml;src" \
+        --add-data "src/shape_predictor_68_face_landmarks.dat;src" \
+        --collect-submodules PyQt5
+
 
     - name: Upload executable
       uses: actions/upload-artifact@v4
