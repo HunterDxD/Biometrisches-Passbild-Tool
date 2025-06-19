@@ -6,10 +6,7 @@ import os
 
 class BiometricImageProcessor:
 
-    def resource_path(relative_path):
-        """Gibt den Pfad zur Datei, auch wenn eingefroren durch PyInstaller."""
-        base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
-        return os.path.join(base_path, relative_path)
+    
 
 
     def __init__(self, target_size=(413, 531), max_file_size=500*1024, 
@@ -43,8 +40,13 @@ class BiometricImageProcessor:
         self.max_eye_hight_factor = self.config.get('biometric_checks', 'max_eye_hight') / 100
         self.after_scale_factor = self.config.get('biometric_checks', 'after_scale')
 
-        model_path = self.resource_path("src/shape_predictor_68_face_landmarks.dat")
-        cascade_path = self.resource_path("src/haarcascade_frontalface_default.xml")
+        def resource_path(relative_path):
+            """Gibt den Pfad zur Datei, auch wenn eingefroren durch PyInstaller."""
+            base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+            return os.path.join(base_path, relative_path)
+    
+        model_path = resource_path("src/shape_predictor_68_face_landmarks.dat")
+        cascade_path = resource_path("src/haarcascade_frontalface_default.xml")
 
         # Lade den Gesichtserkennungs-Klassifikator
         self.face_cascade = cv2.CascadeClassifier(
