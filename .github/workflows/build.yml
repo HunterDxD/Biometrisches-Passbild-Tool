@@ -28,10 +28,7 @@ jobs:
         pyinstaller --onefile src/main.py `
           --add-data "src/haarcascade_frontalface_default.xml;src" `
           --add-data "src/shape_predictor_68_face_landmarks.dat;src" `
-          --hidden-import PyQt5.QtWidgets `
-          --hidden-import PyQt5.QtGui `
-          --hidden-import PyQt5.QtCore `
-          --hidden-import PyQt5.QtPrintSupport
+          --collect-submodules PyQt5
 
     - name: Upload executable
       uses: actions/upload-artifact@v4
