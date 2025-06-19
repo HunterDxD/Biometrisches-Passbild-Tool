@@ -27,7 +27,7 @@ jobs:
       run: |
         pyinstaller --onefile src/main.py `
           --windowed `
-          -I "NONE" `
+          -i "NONE" `
           --add-data "src/haarcascade_frontalface_default.xml;cv2/data" `
           --add-data "src/shape_predictor_68_face_landmarks.dat;src" 
 
