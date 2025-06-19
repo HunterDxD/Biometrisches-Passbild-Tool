@@ -46,8 +46,8 @@ class BiometricImageProcessor:
             base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
             return os.path.join(base_path, relative_path)
     
-        model_path = "src/shape_predictor_68_face_landmarks.dat" #resource_path("src/shape_predictor_68_face_landmarks.dat")
-        cascade_path = "src/haarcascade_frontalface_default.xml" #resource_path("src/haarcascade_frontalface_default.xml")
+        model_path = resource_path("src/shape_predictor_68_face_landmarks.dat")
+        cascade_path = "haarcascade_frontalface_default.xml" #resource_path("src/haarcascade_frontalface_default.xml")
 
         # Lade den Gesichtserkennungs-Klassifikator
         self.face_cascade = cv2.CascadeClassifier(
