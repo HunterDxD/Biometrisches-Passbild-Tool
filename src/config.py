@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import sys
 
 DEFAULT_CONFIG = {
     "face_detection": {
@@ -32,8 +33,15 @@ DEFAULT_CONFIG = {
 
 class Config:
     def __init__(self):
-        self.config_file = Path(__file__).parent / "settings.json"
+        self.base_path = self._get_base_path()
+        self.config_file = self.base_path / "settings.json"
         self.load_config()
+
+    def _get_base_path(self):
+        if getattr(sys, 'frozen', False):  # PyInstaller-EXE
+            return Path(sys.executable).parent
+        else:  # Normaler Python-Modus
+            return Path(__file__).parent
     
     def load_config(self):
         """Lädt die Konfiguration aus der JSON-Datei"""

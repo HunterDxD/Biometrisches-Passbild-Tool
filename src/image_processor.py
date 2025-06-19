@@ -3,6 +3,7 @@ import numpy as np
 from pathlib import Path
 import dlib
 import os
+import sys
 
 class BiometricImageProcessor:
 
