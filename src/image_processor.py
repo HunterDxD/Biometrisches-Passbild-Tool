@@ -2,8 +2,10 @@ import cv2
 import numpy as np
 from pathlib import Path
 import dlib
+import os
 
 class BiometricImageProcessor:
+
     def __init__(self, target_size=(413, 531), max_file_size=500*1024, 
                  debug_mode=True, auto_rotate=False, scal_check=True, eye_check=True, mouth_check=False, side_ratio_check=True, head_tilt_check=True,
                  config=None):
@@ -41,7 +43,7 @@ class BiometricImageProcessor:
         )
 
         # Dlib für präzisere Gesichtserkennung
-        self.predictor = dlib.shape_predictor("models/shape_predictor_68_face_landmarks.dat")
+        self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
         self.detector = dlib.get_frontal_face_detector()
     
 

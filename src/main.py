@@ -13,24 +13,6 @@ import urllib.request
 import bz2
 import shutil
 
-MODEL_DIR = "model"
-MODEL_FILENAME = "shape_predictor_68_face_landmarks.dat"
-MODEL_PATH = os.path.join(MODEL_DIR, MODEL_FILENAME)
-URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
-
-if not os.path.exists(MODEL_PATH):
-    print("⏬ Lade Dlib-Modell herunter...")
-    os.makedirs(MODEL_DIR, exist_ok=True)
-    bz2_path = os.path.join(MODEL_DIR, "temp_model.bz2")
-
-    urllib.request.urlretrieve(URL, bz2_path)
-
-    with bz2.open(bz2_path, "rb") as f_in, open(MODEL_PATH, "wb") as f_out:
-        shutil.copyfileobj(f_in, f_out)
-
-    os.remove(bz2_path)
-    print("✅ Modell wurde erfolgreich gespeichert unter:", MODEL_PATH)
-
 
 class BiometricProcessorGUI(QMainWindow):
     def __init__(self):
