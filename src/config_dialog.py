@@ -2,8 +2,9 @@ from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel,
                            QLineEdit, QPushButton, QGroupBox, QMessageBox,
                            QToolButton, QWidget, QScrollArea)
 from PyQt5.QtCore import Qt
-from config import DEFAULT_CONFIG  # Assuming DEFAULT_CONFIG is defined in config.py
+from config import DEFAULT_CONFIG  # Standard-Konfiguration importieren
 
+# Hilfetexte für die Konfigurationsdialoge
 HELP_TEXTS = {
     "face_detection": {
         "title": "Gesichtserkennung",
@@ -32,22 +33,22 @@ Empfohlener Wert: 0.75"""
         "chin_to_eye_factor": """Verhältnis zwischen Kinn und Augenhöhe. Wird für die Platzierung des Gesichts genutzt.""",
         "min_face_hight": """Minimale Gesichtshöhe in Prozent der Bildhöhe.
 Das Gesicht muss mindestens diesen Anteil des Bildes einnehmen.
-Empfohlender Bereich: 86.02%.""",
+Empfohlener Bereich: 86.02%.""",
         "max_face_height": """Maximale Gesichtsbereich in Prozent der Bildhöhe.
 Das Gesicht darf maximal diesen Anteil des Bildes einnehmen.
-Empfohlender Bereich: 94.85%.""",
+Empfohlener Bereich: 94.85%.""",
         "chin_hight": """Abstand des Kinns vom unteren Bildrand in Prozent.
 Das Kinn wird exakt auf diese Höhe positioniert.
-Empfohlender Bereich: 13.82%.""",
+Empfohlener Bereich: 13.82%.""",
         "min_eye_hight": """Minimale Augenhöhe in Prozent der Bildhöhe.
 Die Augen müssen mindestens so weit vom unteren Rand entfernt sein.
-Empfohlender Bereich: 48.77%.""",
+Empfohlener Bereich: 48.77%.""",
         "max_eye_hight": """Maximale Augenhöhe in Prozent der Bildhöhe.
 Die Augen dürfen maximal so weit vom unteren Rand entfernt sein.
-Empfohlender Bereich: 71.04%.""",
+Empfohlener Bereich: 71.04%.""",
         "after_scale": """Faktor für eine optionale Nachskalierung nach dem automatischen Zuschnitt.
 Erlaubt manuelles Nachjustieren.
-Empfohlender Bereich: 1.03""",
+Empfohlener Bereich: 1.03""",
         "side_ratio_tolerance": """Toleranz für die Symmetrie des Gesichts (frontale Ausrichtung).
 0.15 bedeutet 15% Toleranz in der Seitenansicht.
 Empfohlener Bereich: 0.1 - 0.2""",
@@ -77,6 +78,7 @@ Empfohlener Bereich: 3 - 5"""
 }
 
 class HelpDialog(QDialog):
+    """Dialogfenster für Hilfetexte zu allen Einstellungen"""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Hilfe zur Konfiguration")
@@ -86,20 +88,15 @@ class HelpDialog(QDialog):
     
     def initUI(self):
         layout = QVBoxLayout()
-        
-        # Scrollbereich für den Hilfetext
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        
         help_widget = QWidget()
         help_layout = QVBoxLayout()
-        
         # Allgemeine Anleitung
         general_help = QLabel("""
         <h2>Anleitung zur Biometrischen Bildverarbeitung</h2>
         <p>Diese Software verarbeitet Fotos nach biometrischen Standards für offizielle Dokumente.</p>
-        
         <h3>Grundlegende Schritte:</h3>
         <ol>
             <li>Wählen Sie einen Eingabeordner mit Ihren Fotos</li>
@@ -107,7 +104,6 @@ class HelpDialog(QDialog):
             <li>Aktivieren Sie den Debug-Modus für eine Vorschau</li>
             <li>Passen Sie die Einstellungen nach Bedarf an</li>
         </ol>
-        
         <h3>Wichtige Hinweise:</h3>
         <ul>
             <li>Verwenden Sie Fotos mit frontaler Ansicht</li>
@@ -115,22 +111,17 @@ class HelpDialog(QDialog):
             <li>Vermeiden Sie starke Schatten</li>
             <li>Person sollte neutral schauen</li>
         </ul>
-        
         <h3>Konfigurationseinstellungen:</h3>
         """)
         general_help.setWordWrap(True)
         help_layout.addWidget(general_help)
-        
         # Hilfe für jede Kategorie
         for section, content in HELP_TEXTS.items():
             group = QGroupBox(content["title"])
             group_layout = QVBoxLayout()
-            
             description = QLabel(content["description"])
             description.setWordWrap(True)
             group_layout.addWidget(description)
-            
-            # Parameter der Kategorie
             for param, help_text in content.items():
                 if param not in ["title", "description"]:
                     param_label = QLabel(f"<b>{param}:</b>")
@@ -140,25 +131,21 @@ class HelpDialog(QDialog):
                     group_layout.addWidget(param_label)
                     group_layout.addWidget(help_label)
                     group_layout.addSpacing(10)
-            
             group.setLayout(group_layout)
             help_layout.addWidget(group)
-        
         help_widget.setLayout(help_layout)
         scroll.setWidget(help_widget)
         layout.addWidget(scroll)
-        
-        # Schließen Button
         close_btn = QPushButton("Schließen")
         close_btn.clicked.connect(self.accept)
         layout.addWidget(close_btn)
-        
         self.setLayout(layout)
 
 class ConfigDialog(QDialog):
+    """Dialogfenster für die erweiterten Einstellungen"""
     def __init__(self, config, parent=None):
         super().__init__(parent)
-        self.config = config
+        self.config = config  # Konfigurationsobjekt
         self.initUI()
     
     def initUI(self):

@@ -2,46 +2,48 @@ import json
 from pathlib import Path
 import sys
 
+# Standard-Konfiguration für das Programm
 DEFAULT_CONFIG = {
     "face_detection": {
-        "scale_factor": 1.3,
-        "min_neighbors": 5,
-        "head_height_factor": 1.4,
-        "total_height_factor": 1.8,
-        "width_ratio": 0.75
+        "scale_factor": 1.3,  # Skalierungsfaktor für Gesichtserkennung
+        "min_neighbors": 5,   # Mindestanzahl Nachbarn für Gesicht
+        "head_height_factor": 1.4,  # Faktor für Kopfhöhe
+        "total_height_factor": 1.8, # Faktor für Gesamthöhe
+        "width_ratio": 0.75         # Breitenverhältnis des Bildes
     },
     "biometric_checks": {
-        "chin_to_eye_factor": 2.2,
-        "min_face_hight": 86.02,
-        "max_face_height": 94.85,
-        "chin_hight": 13.82,
-        "min_eye_hight": 48.77,
-        "max_eye_hight": 71.04,
-        "after_scale": 1.03,
-        "side_ratio_tolerance": 0.15,
-        "max_head_tilt": 8.0,
-        "min_eye_ratio": 0.2,
-        "max_mouth_gap": 15,
-        "name_extension": "biometric_"
+        "chin_to_eye_factor": 2.2,      # Verhältnis Kinn zu Augen
+        "min_face_hight": 86.02,        # Minimale Gesichtshöhe in %
+        "max_face_height": 94.85,       # Maximale Gesichtshöhe in %
+        "chin_hight": 13.82,            # Kinnhöhe in %
+        "min_eye_hight": 48.77,         # Minimale Augenhöhe in %
+        "max_eye_hight": 71.04,         # Maximale Augenhöhe in %
+        "after_scale": 1.03,            # Nachskalierungsfaktor
+        "side_ratio_tolerance": 0.15,   # Toleranz für Seitenverhältnis
+        "max_head_tilt": 8.0,           # Maximale Kopfneigung in Grad
+        "min_eye_ratio": 0.2,           # Minimale Augenöffnung
+        "max_mouth_gap": 15,            # Maximale Mundöffnung in Pixel
+        "name_extension": "biometric_"  # Präfix für Dateinamen
     },
     "image_quality": {
-        "min_jpeg_quality": 30,
-        "start_jpeg_quality": 95,
-        "quality_step": 5
+        "min_jpeg_quality": 30,     # Minimale JPEG-Qualität
+        "start_jpeg_quality": 95,   # Startwert für JPEG-Qualität
+        "quality_step": 5           # Schrittweite für Qualitätsreduktion
     },
-
 }
 
 class Config:
+    """Verwaltet das Laden und Speichern der Konfiguration"""
     def __init__(self):
-        self.base_path = self._get_base_path()
-        self.config_file = self.base_path / "settings.json"
+        self.base_path = self._get_base_path()  # Basisverzeichnis bestimmen
+        self.config_file = self.base_path / "settings.json"  # Pfad zur Konfigurationsdatei
         self.load_config()
 
     def _get_base_path(self):
-        if getattr(sys, 'frozen', False):  # PyInstaller-EXE
+        # Ermittelt das Basisverzeichnis (auch für PyInstaller)
+        if getattr(sys, 'frozen', False):
             return Path(sys.executable).parent
-        else:  # Normaler Python-Modus
+        else:
             return Path(__file__).parent
     
     def load_config(self):
