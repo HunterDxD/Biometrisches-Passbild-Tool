@@ -58,6 +58,20 @@ Dieses Programm verarbeitet Fotos automatisch zu biometrischen Passbildern nach 
 - Im Debug-Modus kannst du die automatische Skalierung manuell nachjustieren.
 - Alle Einstellungen werden in einer JSON-Datei gespeichert und können jederzeit angepasst werden.
 
+## Lizenzen
+
+Dieses Programm verwendet folgende Open-Source-Bibliotheken und Modelle:
+
+- Dlib (Boost Software License 1.0)
+- OpenCV (Apache License 2.0)
+- PyQt5 (LGPL v3)
+- NumPy (BSD License)
+
+Die vollständigen Lizenztexte befinden sich im Ordner `licenses`.
+
+**Hinweis zu PyQt5:**  
+Die verwendeten Modelle (`shape_predictor_68_face_landmarks.dat` und `haarcascade_frontalface_default.xml`) unterliegen denselben Lizenzen wie die jeweilige Bibliothek.
+
 ---
 
 **Erstellt von Jan Schneider © 2025**
