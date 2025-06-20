@@ -26,6 +26,9 @@ jobs:
     - name: Build executable
       run: |
         pyinstaller --onefile src/main.py `
+          --name "Passbild Tool" `
+          --noconfirm `
+          --clean `
           --windowed `
           -i "NONE" `
           --add-data "src/haarcascade_frontalface_default.xml;cv2/data" `
