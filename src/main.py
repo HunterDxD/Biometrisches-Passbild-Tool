@@ -155,6 +155,12 @@ class BiometricProcessorGUI(QMainWindow):
         self.start_button.clicked.connect(self.start_processing)
         layout.addWidget(self.start_button)
         
+        # --- Fußzeile hinzufügen ---
+        footer = QLabel("Created by Jan Schneider © 2025")
+        footer.setAlignment(Qt.AlignCenter)
+        footer.setStyleSheet("color: gray; font-size: 10pt; margin-top: 20px;")
+        layout.addWidget(footer)
+
         # Events für automatische Berechnung
         self.width_input.textChanged.connect(self.calculate_height)
         self.height_input.textChanged.connect(self.calculate_width)
