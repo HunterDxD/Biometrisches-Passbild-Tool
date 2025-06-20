@@ -25,7 +25,7 @@ jobs:
 
     - name: Build executable
       run: |
-        pyinstaller --onefile src/main.py `
+        pyinstaller --onedir src/main.py `
           --name "Passbild-Tool" `
           --noconfirm `
           --clean `
