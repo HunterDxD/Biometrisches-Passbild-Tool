@@ -48,16 +48,10 @@ class BiometricImageProcessor:
             base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
             return os.path.join(base_path, relative_path)
     
-        # Pfade zu Modellen
+        # Pfad zum Dlib-Landmark-Modell
         model_path = resource_path("src/shape_predictor_68_face_landmarks.dat")
-        cascade_path = "haarcascade_frontalface_default.xml"
 
-        # OpenCV-Gesichtserkennung laden
-        self.face_cascade = cv2.CascadeClassifier(
-            cv2.data.haarcascades + cascade_path
-        )
-
-        # Dlib-Modelle für präzise Landmark-Erkennung
+        # Dlib-Modelle für Gesichtserkennung und präzise Landmark-Erkennung
         self.predictor = dlib.shape_predictor(model_path)
         self.detector = dlib.get_frontal_face_detector()
     
@@ -170,21 +164,15 @@ class BiometricImageProcessor:
                     if image is None:
                         continue
                     
-                    # Gesichtserkennung (OpenCV)
+                    # Gesichtserkennung (nur Dlib)
                     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                    scale_factor = self.config.get('face_detection', 'scale_factor')
-                    min_neighbors = self.config.get('face_detection', 'min_neighbors')
-                    faces = self.face_cascade.detectMultiScale(gray, scale_factor, int(min_neighbors))
+                    faces = self.detector(gray, 1)
                     
                     if len(faces) != 1:
                         log.write(f"{img_path.name}: Kein eindeutiges Gesicht gefunden\n")
                         continue
                     
-                    face_coords = faces[0]
-                    x, y, w, h = face_coords
-                    
-                    # Dlib-Landmarks erkennen
-                    dlib_rect = dlib.rectangle(left=x, top=y, right=x+w, bottom=y+h)
+                    dlib_rect = faces[0]
                     shape = self.predictor(gray, dlib_rect)
                     
                     # Biometrische Anforderungen prüfen
@@ -198,7 +186,7 @@ class BiometricImageProcessor:
                     
                     # Debug-Visualisierung anzeigen
                     if self.debug_mode:
-                        debug_img = self.draw_debug_visualization(image, shape, face_coords)
+                        debug_img = self.draw_debug_visualization(image, shape, dlib_rect)
                         if debug_img is None:
                             log.write(f"{img_path.name}: Gesicht zu groß oder zu nah am Bildrand\n")
                             continue
@@ -210,7 +198,7 @@ class BiometricImageProcessor:
                             continue
                     else:
                         # Auch ohne Debug prüfen, ob das Gesicht passt
-                        debug_img = self.draw_debug_visualization(image, shape, face_coords)
+                        debug_img = self.draw_debug_visualization(image, shape, dlib_rect)
                         if debug_img is None:
                             log.write(f"{img_path.name}: Gesicht zu groß oder zu nah am Bildrand\n")
                             continue
@@ -218,18 +206,14 @@ class BiometricImageProcessor:
                     # Automatische Rotation falls aktiviert
                     if self.auto_rotate:
                         working_image = self.auto_rotate_image(working_image, shape)
-                        # Nach Rotation neue Gesichtserkennung
+                        # Nach Rotation neue Gesichtserkennung (nur Dlib)
                         gray = cv2.cvtColor(working_image, cv2.COLOR_BGR2GRAY)
-                        faces = self.face_cascade.detectMultiScale(gray, 1.3, 5)
+                        faces = self.detector(gray, 1)
                         if len(faces) == 1:
-                            face_coords = faces[0]
-                            dlib_rect = dlib.rectangle(left=face_coords[0], 
-                                                    top=face_coords[1], 
-                                                    right=face_coords[0]+face_coords[2], 
-                                                    bottom=face_coords[1]+face_coords[3])
+                            dlib_rect = faces[0]
                             shape = self.predictor(gray, dlib_rect)
                             if self.debug_mode:
-                                debug_rotated = self.draw_debug_visualization(working_image, shape, face_coords)
+                                debug_rotated = self.draw_debug_visualization(working_image, shape, dlib_rect)
                                 cv2.imshow('2. Rotiertes Bild mit Markierungen', debug_rotated)
                                 if cv2.waitKey(0) == 27:  # ESC
                                     cv2.destroyAllWindows()
@@ -331,10 +315,10 @@ class BiometricImageProcessor:
         rotated = cv2.warpAffine(image, rotation_matrix, (image.shape[1], image.shape[0]))
         return rotated
 
-    def draw_debug_visualization(self, image, shape, face_coords):
+    def draw_debug_visualization(self, image, shape, dlib_rect):
         """Zeichnet Hilfslinien und Markierungen ins Bild"""
         debug_img = image.copy()
-        x, y, w, h = face_coords
+        x, y, w, h = dlib_rect.left(), dlib_rect.top(), dlib_rect.width(), dlib_rect.height()
 
         # Biometrische Verhältnisse aus Konfiguration
         head_height = int(h * self.config.get('face_detection', 'head_height_factor'))
