@@ -162,15 +162,18 @@ class BiometricImageProcessor:
                     print(f"Verarbeite {img_path.name}...")
                     image = cv2.imread(str(img_path))
                     if image is None:
+                        log.write(f"{img_path.name}: Bild konnte nicht geladen werden\n")
                         continue
                     
                     # Gesichtserkennung (nur Dlib)
                     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                    faces = self.detector(gray, 1)
+                    faces = self.detector(gray, 0)
                     
-                    if len(faces) != 1:
-                        log.write(f"{img_path.name}: Kein eindeutiges Gesicht gefunden\n")
+                    if len(faces) == 0:
+                        log.write(f"{img_path.name}: Kein Gesicht gefunden\n")
                         continue
+                    if len(faces) > 1:
+                        log.write(f"{img_path.name}: Mehrere Gesichter gefunden, nur das erste wird verarbeitet\n")
                     
                     dlib_rect = faces[0]
                     shape = self.predictor(gray, dlib_rect)
