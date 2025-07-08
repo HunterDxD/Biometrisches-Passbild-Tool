@@ -146,7 +146,7 @@ class BiometricImageProcessor:
             quality -= quality_step
             
         return encoded_img
-
+    
     def process_directory(self, input_dir, output_dir):
         """Verarbeitet alle Bilder in einem Verzeichnis"""
         input_path = Path(input_dir)
@@ -159,8 +159,11 @@ class BiometricImageProcessor:
         with open(log_file, "w", encoding="utf-8") as log:
             for img_path in input_path.glob('*.[jJ][pP][gG]'):
                 try:
-                    print(f"Verarbeite {img_path.name}...")
-                    image = cv2.imread(str(img_path))
+                    # Unicode-sicheres Einlesen
+                    with open(img_path, 'rb') as f:
+                        file_bytes = np.asarray(bytearray(f.read()), dtype=np.uint8)
+                        image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    
                     if image is None:
                         log.write(f"{img_path.name}: Bild konnte nicht geladen werden\n")
                         continue
