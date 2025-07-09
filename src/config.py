@@ -23,7 +23,9 @@ DEFAULT_CONFIG = {
         "max_head_tilt": 8.0,           # Maximale Kopfneigung in Grad
         "min_eye_ratio": 0.2,           # Minimale Augenöffnung
         "max_mouth_gap": 15,            # Maximale Mundöffnung in Pixel
-        "name_extension": "biometric_"  # Präfix für Dateinamen
+        "rotate_angle": 1,            # Rotationswinkel in Grad
+        "move_step": 10,                # Verschiebeschritt in Pixel
+        "name_extension": ""  # Präfix für Dateinamen
     },
     "image_quality": {
         "min_jpeg_quality": 30,     # Minimale JPEG-Qualität

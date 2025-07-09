@@ -42,6 +42,8 @@ class BiometricImageProcessor:
         self.min_eye_hight_factor = self.config.get('biometric_checks', 'min_eye_hight') / 100
         self.max_eye_hight_factor = self.config.get('biometric_checks', 'max_eye_hight') / 100
         self.after_scale_factor = self.config.get('biometric_checks', 'after_scale')
+        self.rotate_angle = self.config.get('biometric_checks', 'rotate_angle')  # Rotationswinkel in Grad
+        self.move_step = int(self.config.get('biometric_checks', 'move_step'))  # Pixel pro Tastendruck
 
         # Hilfsfunktion für Ressourcenpfad (PyInstaller-kompatibel)
         def resource_path(relative_path):
@@ -56,9 +58,16 @@ class BiometricImageProcessor:
         self.detector = dlib.get_frontal_face_detector()
     
 
-    def process_image(self, image, shape, scale_override=None):
-        """Schneidet das Bild nach biometrischen Vorgaben zu"""
+    def process_image(self, image, shape, scale_override=None, offset_x=0, offset_y=0, rotation_angle=0):
+        """Schneidet das Bild nach biometrischen Vorgaben zu, mit optionalem Offset und Rotation"""
         target_w, target_h = self.target_size  # Zielbreite und -höhe
+
+        # Bild rotieren, falls rotation_angle != 0
+        if rotation_angle != 0:
+            center = (image.shape[1] // 2, image.shape[0] // 2)
+            rot_mat = cv2.getRotationMatrix2D(center, rotation_angle, 1.0)
+            image = cv2.warpAffine(image, rot_mat, (image.shape[1], image.shape[0]))
+            
 
         # Landmark-Koordinaten auslesen
         chin = np.array([shape.part(8).x, shape.part(8).y])  # Kinn
@@ -94,10 +103,10 @@ class BiometricImageProcessor:
         # Zielposition für das Kinn bestimmen
         chin_target_y = target_h * (1 - self.chin_hight_factor)
 
-        # Zuschneidebereich berechnen
-        crop_top = int(round(chin_s[1] - chin_target_y))
+        # Zuschneidebereich berechnen (mit Offset)
+        crop_top = int(round(chin_s[1] - chin_target_y)) + offset_y
         crop_bottom = crop_top + target_h
-        crop_center_x = int(round(eyes_center_s[0]))
+        crop_center_x = int(round(eyes_center_s[0])) + offset_x
         crop_left = crop_center_x - target_w // 2
         crop_right = crop_left + target_w
 
@@ -396,12 +405,22 @@ class BiometricImageProcessor:
         return img
 
     def interactive_finalize(self, image, shape):
-        """Erlaubt interaktives Nachjustieren der Skalierung"""
+        """Erlaubt interaktives Nachjustieren der Skalierung, Verschiebung und Rotation"""
         scale_factor = 1.0
+        offset_x = 0
+        offset_y = 0
+        rotation_angle = 0  # Rotationswinkel in Grad
+
         while True:
-            processed = self.process_image(image, shape, scale_override=scale_factor)
+            processed = self.process_image(
+                image, shape,
+                scale_override=scale_factor,
+                offset_x=offset_x,
+                offset_y=offset_y,
+                rotation_angle=rotation_angle  
+            )
             processed_with_guides = self.draw_biometric_guides(processed)
-            cv2.imshow('3. Finales Bild (mit +/- skalieren, ENTER speichern, ESC abbrechen)', processed_with_guides)
+            cv2.imshow('3. Finales Bild (mit +/- skalieren, Pfeiltasten verschieben, l/r rotieren, ENTER speichern, ESC abbrechen)', processed_with_guides)
             key = cv2.waitKey(0)
             if key == 27:  # ESC
                 cv2.destroyAllWindows()
@@ -413,5 +432,19 @@ class BiometricImageProcessor:
                 scale_factor *= self.after_scale_factor
             elif key == 45:  # -
                 scale_factor /= self.after_scale_factor
-            cv2.destroyWindow('3. Finales Bild (mit +/- skalieren, ENTER speichern, ESC abbrechen)')
+            elif key == 2:  # Links
+                offset_x += self.move_step
+            elif key == 3:  # Rechts
+                offset_x -= self.move_step
+            elif key == 0:  # Hoch
+                offset_y += self.move_step
+            elif key == 1:  # Runter
+                offset_y -= self.move_step
+            elif key == ord('l'):  # l für links drehen
+                rotation_angle += self.rotate_angle
+            elif key == ord('r'):  # r für rechts drehen
+                rotation_angle -= self.rotate_angle
+            else:
+                print(f"Unbekannte Taste: {key}.")
+            cv2.destroyWindow('3. Finales Bild (mit +/- skalieren, Pfeiltasten verschieben, l/r rotieren, ENTER speichern, ESC abbrechen)')
 

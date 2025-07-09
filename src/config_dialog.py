@@ -60,7 +60,12 @@ Erkennt geschlossene oder stark zusammengekniffene Augen.
 Empfohlener Bereich: 0.15 - 0.25""",
         "max_mouth_gap": """Maximaler Abstand zwischen Ober- und Unterlippe in Pixeln.
 Erkennt geöffnete Münder.
-Empfohlener Bereich: 10 - 20"""
+Empfohlener Bereich: 10 - 20""",
+        "rotate_angle": """Rotationswinkel in Grad für die Feinjustierung.
+Empfohlener Wert: 1""",
+        "move_step": """Verschiebeschritt in Pixeln für die manuelle Anpassung.
+Ein höherer Wert ermöglicht größere Schritte, aber weniger Feineinstellung.
+Empfohlener Bereich: 5 - 15"""
     },
     "image_quality": {
         "title": "Bildqualität",
@@ -196,6 +201,11 @@ class ConfigDialog(QDialog):
             "Min. Augenöffnung:", "biometric_checks", "min_eye_ratio")
         self.mouth_gap = self.add_config_field(bio_layout,
             "Max. Mundöffnung (Pixel):", "biometric_checks", "max_mouth_gap")
+        self.rotate_angle = self.add_config_field(bio_layout,
+            "Rotationswinkel (Grad):", "biometric_checks", "rotate_angle")
+        self.move_step = self.add_config_field(bio_layout,
+            "Verschiebeschritt (Pixel):", "biometric_checks", "move_step")
+        
             
         bio_group.setLayout(bio_layout)
         layout.addWidget(bio_group)

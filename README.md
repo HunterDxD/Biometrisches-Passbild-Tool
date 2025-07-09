@@ -12,6 +12,11 @@ Dieses Programm verarbeitet Fotos automatisch zu biometrischen Passbildern nach 
 - **Debug-Modus** mit Vorschau und Hilfslinien
 - **Erweiterte Einstellungen** für alle Parameter
 - **Verarbeitung ganzer Ordner** mit einem Klick
+- **Manuelle Nachjustierung:**  
+  Im interaktiven Modus kann das finale Bild zusätzlich angepasst werden:
+  - **Verschieben des Bildausschnitts** mit den Pfeiltasten
+  - **Skalieren** mit den Tasten `+` und `-`
+  - **Rotation** des Bildes um jeweils 1 Grad mit den Tasten `l` (links) und `r` (rechts)
 
 ## Installation
 
@@ -51,6 +56,16 @@ Dieses Programm verarbeitet Fotos automatisch zu biometrischen Passbildern nach 
 
 5. **Verarbeitung starten**  
    Klicke auf „Verarbeitung starten“. Die fertigen Bilder werden im Ausgabeordner gespeichert. Nicht-biometrische Bilder werden protokolliert.
+
+### Interaktiver Modus
+
+Nach der automatischen Verarbeitung kann das finale Bild im interaktiven Modus manuell angepasst werden:
+
+- **Ausschnitt verschieben:** Mit den Pfeiltasten (←, →, ↑, ↓)
+- **Skalieren:** Mit `+` (größer) und `-` (kleiner)
+- **Rotieren:** Mit `l` (1° nach links) und `r` (1° nach rechts)
+- **Speichern:** Mit `Enter`
+- **Abbrechen:** Mit `ESC`
 
 ## Hinweise
 

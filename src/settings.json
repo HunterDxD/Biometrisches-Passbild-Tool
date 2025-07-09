@@ -1,7 +1,7 @@
 {
     "face_detection": {
         "scale_factor": 1.3,
-        "min_neighbors": 5.0,
+        "min_neighbors": 5,
         "head_height_factor": 1.4,
         "total_height_factor": 1.8,
         "width_ratio": 0.75
@@ -17,11 +17,14 @@
         "side_ratio_tolerance": 0.15,
         "max_head_tilt": 8.0,
         "min_eye_ratio": 0.2,
-        "max_mouth_gap": 5.0
+        "max_mouth_gap": 15,
+        "rotate_angle": 1,
+        "move_step": 10,
+        "name_extension": ""
     },
     "image_quality": {
-        "min_jpeg_quality": 30.0,
-        "start_jpeg_quality": 95.0,
-        "quality_step": 5.0
+        "min_jpeg_quality": 30,
+        "start_jpeg_quality": 95,
+        "quality_step": 5
     }
 }
