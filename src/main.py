@@ -203,7 +203,7 @@ class BiometricProcessorGUI(QMainWindow):
 
         self.info_label = QLabel("Auflösung: -    Dateigröße: -")
         self.info_label.setAlignment(Qt.AlignLeft | Qt.AlignBottom)
-        self.info_label.setFixedHeight(self.screen_height * 0.025)  # Höhe für Info-Label
+        self.info_label.setFixedHeight(int(self.screen_height * 0.025))  # Höhe für Info-Label
         self.info_label.setStyleSheet("color: #666; font-size: 11pt; margin-top: 10px;")
         center_layout.addWidget(self.info_label)
 
