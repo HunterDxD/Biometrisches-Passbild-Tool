@@ -504,6 +504,7 @@ class BiometricProcessorGUI(QMainWindow):
             offset_y=self.offset_y,
             rotation_angle=self.rotation_angle
         )
+        processed = self.apply_image_edits(processed)
         encoded_img = self.processor.adjust_jpeg_quality(processed, self.processor.max_file_size)
         output_dir = self.output_path.text()
         img_path = self.image_list[self.image_index]
