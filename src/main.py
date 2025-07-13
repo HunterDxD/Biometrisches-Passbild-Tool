@@ -191,7 +191,7 @@ class BiometricProcessorGUI(QMainWindow):
         main_widget.setLayout(outer_layout)
 
         left_widget.setLayout(left_layout)
-        left_widget.setMaximumHeight(self.screen_height * 0.9)  # Maximale Höhe für den linken Bereich
+        left_widget.setMaximumHeight(int(self.screen_height * 0.9))  # Maximale Höhe für den linken Bereich
 
         # Mittlerer Bereich: Bildanzeige
         center_widget = QWidget()
@@ -208,7 +208,7 @@ class BiometricProcessorGUI(QMainWindow):
         center_layout.addWidget(self.info_label)
 
         center_widget.setLayout(center_layout)
-        center_widget.setMaximumHeight(self.screen_height * 0.9)  # Maximale Höhe für den mittleren Bereich
+        center_widget.setMaximumHeight(int(self.screen_height * 0.9))  # Maximale Höhe für den mittleren Bereich
 
         # Rechter Bereich: Manuelle Steuerung
         right_widget = QWidget()
@@ -300,7 +300,7 @@ class BiometricProcessorGUI(QMainWindow):
 
         right_widget.setLayout(right_layout)
         right_widget.setFixedWidth(220)  # Optional: feste Breite
-        right_widget.setMaximumHeight(self.screen_height * 0.9)  # Maximale Höhe für den mittleren Bereich
+        right_widget.setMaximumHeight(int(self.screen_height * 0.9))  # Maximale Höhe für den mittleren Bereich
 
         # Layout zusammenbauen
         main_layout.addWidget(left_widget)
