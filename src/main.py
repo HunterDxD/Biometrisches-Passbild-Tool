@@ -292,8 +292,7 @@ class BiometricProcessorGUI(QMainWindow):
         edit_layout.addWidget(QLabel("Blau-Korrektur"))
         edit_layout.addWidget(self.b_slider)
 
-        self.magic_btn = QPushButton("Magische Hautkorrektur")
-        edit_layout.addWidget(self.magic_btn)
+        
 
         edit_group.setLayout(edit_layout)
         right_layout.addWidget(edit_group)
@@ -581,38 +580,7 @@ class BiometricProcessorGUI(QMainWindow):
         img = img.astype(np.uint8)
         return img
 
-    def magic_skin_correction(self):
-        """Automatische Hautkorrektur (einfacher Weißabgleich + Glättung)"""
-        if self.current_image is None:
-            return
-        processed = self.processor.process_image(
-            self.current_image,
-            self.current_shape,
-            scale_override=self.scale_factor,
-            offset_x=self.offset_x,
-            offset_y=self.offset_y,
-            rotation_angle=self.rotation_angle
-        )
-        # Weißabgleich
-        result = cv2.xphoto.createSimpleWB().balanceWhite(processed)
-        # Glättung (leichtes Bilateral-Filter)
-        result = cv2.bilateralFilter(result, 9, 75, 75)
-        # Werte auf die Slider übertragen (optional)
-        self.gamma_slider.setValue(100)
-        self.brightness_slider.setValue(0)
-        self.contrast_slider.setValue(100)
-        self.r_slider.setValue(0)
-        self.g_slider.setValue(0)
-        self.b_slider.setValue(0)
-        # Zeige das Ergebnis
-        processed_with_guides = self.processor.draw_biometric_guides(result)
-        height, width, channel = processed_with_guides.shape
-        bytes_per_line = 3 * width
-        q_img = QImage(processed_with_guides.tobytes(), width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
-        pixmap = QPixmap.fromImage(q_img)
-        self.image_label.setPixmap(pixmap.scaled(self.image_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        self.current_image = result
-
+    
 
 def main():
     """Startet die Anwendung"""
