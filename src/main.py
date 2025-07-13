@@ -323,7 +323,6 @@ class BiometricProcessorGUI(QMainWindow):
         self.r_slider.valueChanged.connect(self.update_image_preview)
         self.g_slider.valueChanged.connect(self.update_image_preview)
         self.b_slider.valueChanged.connect(self.update_image_preview)
-        self.magic_btn.clicked.connect(self.magic_skin_correction)
 
     def calculate_height(self):
         """Berechnet die Höhe automatisch anhand der Breite"""
