@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
                            QLineEdit, QPushButton, QGroupBox, QMessageBox,
-                           QToolButton, QWidget, QScrollArea)
+                           QToolButton, QWidget, QScrollArea, QComboBox)
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QStyleFactory
 from config import DEFAULT_CONFIG  # Standard-Konfiguration importieren
 
 # Hilfetexte für die Konfigurationsdialoge
@@ -224,6 +225,19 @@ class ConfigDialog(QDialog):
         quality_group.setLayout(quality_layout)
         layout.addWidget(quality_group)
         
+        # Oberflächen-Style
+        style_group = QGroupBox("Oberflächen-Style")
+        style_layout = QHBoxLayout()
+        style_layout.addWidget(QLabel("Qt Style:"))
+        self.style_combo = QComboBox()
+        self.style_combo.addItems(QStyleFactory.keys())
+        current_style = self.config.get("ui", "qt_style")
+        if current_style in QStyleFactory.keys():
+            self.style_combo.setCurrentText(current_style)
+        style_layout.addWidget(self.style_combo)
+        style_group.setLayout(style_layout)
+        layout.addWidget(style_group)
+        
         # Buttons
         btn_layout = QHBoxLayout()
         save_btn = QPushButton("Speichern")
@@ -267,6 +281,8 @@ class ConfigDialog(QDialog):
                     section, key = widget.objectName().split('.')
                     value = float(widget.text())
                     self.config.set(section, key, value)
+            # Style speichern
+            self.config.set("ui", "qt_style", self.style_combo.currentText())
             self.config.save_config()
             QMessageBox.information(self, "Erfolg", 
                 "Einstellungen wurden gespeichert!")

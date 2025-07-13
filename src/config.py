@@ -32,6 +32,9 @@ DEFAULT_CONFIG = {
         "start_jpeg_quality": 95,   # Startwert für JPEG-Qualität
         "quality_step": 5           # Schrittweite für Qualitätsreduktion
     },
+    "ui": {
+        "qt_style": "Fusion"  # Standard-Style
+    }
 }
 
 class Config:
