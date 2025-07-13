@@ -611,6 +611,8 @@ class BiometricProcessorGUI(QMainWindow):
         q_img = QImage(processed_with_guides.tobytes(), width, height, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
         pixmap = QPixmap.fromImage(q_img)
         self.image_label.setPixmap(pixmap.scaled(self.image_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.current_image = result
+
 
 def main():
     """Startet die Anwendung"""
