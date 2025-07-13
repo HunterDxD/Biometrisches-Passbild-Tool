@@ -511,6 +511,7 @@ class BiometricProcessorGUI(QMainWindow):
         with open(output_file, 'wb') as f:
             f.write(encoded_img)
         QMessageBox.information(self, "Gespeichert", f"Bild gespeichert: {output_file.name}")
+        next_image()
 
     def next_image(self):
         """Wechselt zum nächsten Bild"""
