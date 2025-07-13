@@ -511,11 +511,12 @@ class BiometricProcessorGUI(QMainWindow):
         with open(output_file, 'wb') as f:
             f.write(encoded_img)
         QMessageBox.information(self, "Gespeichert", f"Bild gespeichert: {output_file.name}")
-        self.next_image()
+        self.next_image(save="gesichert")
 
-    def next_image(self):
+    def next_image(self, save=""):
         """Wechselt zum nächsten Bild"""
-        self.log_non_biometric("Manuell übersprungen")
+        if save != "gesichert":
+          self.log_non_biometric("Manuell übersprungen")
         self.setFocus()
         if self.image_index < len(self.image_list) - 1:
             self.image_index += 1
