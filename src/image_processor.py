@@ -45,16 +45,25 @@ class BiometricImageProcessor:
         self.rotate_angle = self.config.get('biometric_checks', 'rotate_angle')  # Rotationswinkel in Grad
         self.move_step = int(self.config.get('biometric_checks', 'move_step'))  # Pixel pro Tastendruck
 
-        # Hilfsfunktion für Ressourcenpfad (PyInstaller-kompatibel)
-        def resource_path(relative_path):
-            base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
-            return os.path.join(base_path, relative_path)
-    
-        # Pfad zum Dlib-Landmark-Modell
-        model_path = resource_path("src/shape_predictor_68_face_landmarks.dat")
+        # Path to the dlib landmark model, made robust for running from different locations
+        # and for PyInstaller. The model is expected to be in the same directory as this script.
+        if getattr(sys, 'frozen', False):
+            # we are running in a bundle
+            base_path = sys._MEIPASS
+        else:
+            # we are running in a normal Python environment
+            base_path = Path(__file__).parent
+
+        model_path = Path(base_path) / "shape_predictor_68_face_landmarks.dat"
+
+        if not model_path.exists():
+            # If not found, try the src subdir, for when running from root
+            model_path = Path(base_path) / "src" / "shape_predictor_68_face_landmarks.dat"
+            if not model_path.exists():
+                 raise FileNotFoundError(f"Could not find shape_predictor_68_face_landmarks.dat")
 
         # Dlib-Modelle für Gesichtserkennung und präzise Landmark-Erkennung
-        self.predictor = dlib.shape_predictor(model_path)
+        self.predictor = dlib.shape_predictor(str(model_path))
         self.detector = dlib.get_frontal_face_detector()
     
 
@@ -155,111 +164,6 @@ class BiometricImageProcessor:
             quality -= quality_step
             
         return encoded_img
-    
-    def process_directory(self, input_dir, output_dir):
-        """Verarbeitet alle Bilder in einem Verzeichnis"""
-        input_path = Path(input_dir)
-        output_path = Path(output_dir)
-        output_path.mkdir(exist_ok=True)
-        
-        # Log-Datei für nicht-biometrische Bilder
-        log_file = output_path / "nicht_biometrisch.txt"
-        
-        with open(log_file, "w", encoding="utf-8") as log:
-            for img_path in input_path.glob('*.[jJ][pP][gG]'):
-                try:
-                    # Unicode-sicheres Einlesen
-                    with open(img_path, 'rb') as f:
-                        file_bytes = np.asarray(bytearray(f.read()), dtype=np.uint8)
-                        image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-    
-                    if image is None:
-                        log.write(f"{img_path.name}: Bild konnte nicht geladen werden\n")
-                        continue
-                    
-                    # Gesichtserkennung (nur Dlib)
-                    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                    faces = self.detector(gray, 0)
-                    
-                    if len(faces) == 0:
-                        log.write(f"{img_path.name}: Kein Gesicht gefunden\n")
-                        continue
-                    if len(faces) > 1:
-                        log.write(f"{img_path.name}: Mehrere Gesichter gefunden, nur das erste wird verarbeitet\n")
-                    
-                    dlib_rect = faces[0]
-                    shape = self.predictor(gray, dlib_rect)
-                    
-                    # Biometrische Anforderungen prüfen
-                    is_valid, message = self.check_biometric_requirements(shape)
-                    if not is_valid:
-                        log.write(f"{img_path.name}: {message}\n")
-                        continue
-
-                    # Arbeitskopie des Bildes
-                    working_image = image.copy()
-                    
-                    # Debug-Visualisierung anzeigen
-                    if self.debug_mode:
-                        debug_img = self.draw_debug_visualization(image, shape, dlib_rect)
-                        if debug_img is None:
-                            log.write(f"{img_path.name}: Gesicht zu groß oder zu nah am Bildrand\n")
-                            continue
-                        
-                        cv2.imshow('1. Erkanntes Gesicht & Markierungen', debug_img)
-                        if cv2.waitKey(0) == 27:  # ESC
-                            cv2.destroyAllWindows()
-                            log.write(f"{img_path.name}: Manuell übersprungen\n")
-                            continue
-                    else:
-                        # Auch ohne Debug prüfen, ob das Gesicht passt
-                        debug_img = self.draw_debug_visualization(image, shape, dlib_rect)
-                        if debug_img is None:
-                            log.write(f"{img_path.name}: Gesicht zu groß oder zu nah am Bildrand\n")
-                            continue
-
-                    # Automatische Rotation falls aktiviert
-                    if self.auto_rotate:
-                        working_image = self.auto_rotate_image(working_image, shape)
-                        # Nach Rotation neue Gesichtserkennung (nur Dlib)
-                        gray = cv2.cvtColor(working_image, cv2.COLOR_BGR2GRAY)
-                        faces = self.detector(gray, 1)
-                        if len(faces) == 1:
-                            dlib_rect = faces[0]
-                            shape = self.predictor(gray, dlib_rect)
-                            if self.debug_mode:
-                                debug_rotated = self.draw_debug_visualization(working_image, shape, dlib_rect)
-                                cv2.imshow('2. Rotiertes Bild mit Markierungen', debug_rotated)
-                                if cv2.waitKey(0) == 27:  # ESC
-                                    cv2.destroyAllWindows()
-                                    log.write(f"{img_path.name}: Manuell übersprungen\n")
-                                    continue
-
-                    # Bild zuschneiden und ggf. interaktiv nachjustieren
-                    try:
-                        if self.debug_mode or self.scal_check:
-                            processed = self.interactive_finalize(working_image, shape)
-                            if processed is None:
-                                log.write(f"{img_path.name}: Manuell übersprungen\n")
-                                continue
-                        else:
-                            processed = self.process_image(working_image, shape)
-                    except ValueError as ve:
-                        log.write(f"{img_path.name}: {str(ve)}\n")
-                        continue
-                    
-                    # Dateigröße anpassen und speichern
-                    encoded_img = self.adjust_jpeg_quality(processed, self.max_file_size)
-                    output_file = output_path / f"{self.name_extension}{img_path.name}"
-                    with open(output_file, 'wb') as f:
-                        f.write(encoded_img)
-                    
-                    print(f"Erfolgreich gespeichert: {output_file.name}")
-                
-                except Exception as e:
-                    log.write(f"{img_path.name}: Fehler - {str(e)}\n")
-                    print(f"Fehler bei {img_path.name}: {str(e)}")
-        return True
     
     def check_biometric_requirements(self, shape):
         """Prüft, ob das Gesicht biometrischen Anforderungen entspricht"""
@@ -403,48 +307,4 @@ class BiometricImageProcessor:
         cv2.putText(img, f"Augen min ({self.min_eye_hight_factor * 100}%)", (10, eye_max+20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 128, 255), 1)
 
         return img
-
-    def interactive_finalize(self, image, shape):
-        """Erlaubt interaktives Nachjustieren der Skalierung, Verschiebung und Rotation"""
-        scale_factor = 1.0
-        offset_x = 0
-        offset_y = 0
-        rotation_angle = 0  # Rotationswinkel in Grad
-
-        while True:
-            processed = self.process_image(
-                image, shape,
-                scale_override=scale_factor,
-                offset_x=offset_x,
-                offset_y=offset_y,
-                rotation_angle=rotation_angle  
-            )
-            processed_with_guides = self.draw_biometric_guides(processed)
-            cv2.imshow('3. Finales Bild (mit +/- skalieren, Pfeiltasten verschieben, l/r rotieren, ENTER speichern, ESC abbrechen)', processed_with_guides)
-            key = cv2.waitKey(0)
-            if key == 27:  # ESC
-                cv2.destroyAllWindows()
-                return None
-            elif key in [13, 10]:  # ENTER
-                cv2.destroyAllWindows()
-                return processed
-            elif key == 43:  # +
-                scale_factor *= self.after_scale_factor
-            elif key == 45:  # -
-                scale_factor /= self.after_scale_factor
-            elif key == 2:  # Links
-                offset_x += self.move_step
-            elif key == 3:  # Rechts
-                offset_x -= self.move_step
-            elif key == 0:  # Hoch
-                offset_y += self.move_step
-            elif key == 1:  # Runter
-                offset_y -= self.move_step
-            elif key == ord('l'):  # l für links drehen
-                rotation_angle += self.rotate_angle
-            elif key == ord('r'):  # r für rechts drehen
-                rotation_angle -= self.rotate_angle
-            else:
-                print(f"Unbekannte Taste: {key}.")
-            cv2.destroyWindow('3. Finales Bild (mit +/- skalieren, Pfeiltasten verschieben, l/r rotieren, ENTER speichern, ESC abbrechen)')
 
